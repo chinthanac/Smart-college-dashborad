@@ -1,0 +1,2799 @@
+/* ==========================================================================
+   Design tokens.
+
+   Named by ROLE, never by value (--text-muted, not --slate-500), because a
+   role survives a palette change and a value does not.
+
+   Standing rule: every new rule uses tokens. The ~60 legacy hex literals
+   further down migrate when their rule is next touched for another reason —
+   a blind sweep of 2200 lines buys nothing and risks a lot.
+
+   Structured for a future [data-theme="dark"] block, which would re-point
+   these values and let every chart follow for free. Dark is NOT implemented
+   here: shipping it over un-migrated literals yields a half-dark app, and
+   the dark steps need selecting against dark surfaces, not flipping.
+   ========================================================================== */
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #0f172a;
+  background: #edf3f8;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Declared now so form controls are not auto-inverted the day a dark
+     theme lands. */
+  color-scheme: light;
+
+  /* --- ink --- */
+  --text-strong: #0f172a;
+  --text-body: #334155;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --text-on-dark: #eaf0ff;
+
+  /* --- surfaces --- */
+  --bg-app: #edf3f8;
+  --bg-admin: #eef3f8;
+  --bg-page: #f4f8fb;
+  --surface-1: #ffffff;
+  --surface-raised: rgba(255, 255, 255, 0.9);
+  --surface-panel: rgba(255, 255, 255, 0.8);
+  --surface-muted: #f8fafc;
+  --surface-sunken: #f1f5f9;
+
+  /* --- borders --- */
+  --border-soft: rgba(148, 163, 184, 0.2);
+  --border: rgba(148, 163, 184, 0.35);
+  --border-strong: #cbd5e1;
+
+  /* --- accents, each with the tint/ink pair its chips already use --- */
+  --accent-blue: #2563eb;
+  --accent-blue-deep: #1d4ed8;
+  --accent-blue-tint: #dbeafe;
+  --accent-green: #16a34a;
+  --accent-green-bright: #22c55e;
+  --accent-green-tint: #dcfce7;
+  --accent-green-ink: #166534;
+  --accent-red: #dc2626;
+  --accent-red-deep: #b91c1c;
+  --accent-red-tint: #fee2e2;
+  --accent-amber: #b45309;
+  --accent-amber-ink: #92400e;
+  --accent-amber-tint: #fef3c7;
+  --accent-violet: #6d28d9;
+  --accent-violet-tint: #ede9fe;
+
+  /* --- one series palette ---
+     Replaces the three conflicting sets this stylesheet used to carry (legend
+     dots, the donut's fixed conic-gradient, and bar colours inlined in JSX),
+     which gave the same series three different colours depending on which
+     chart drew it. Every chart now reads these and only these. */
+  --chart-series-1: #3b82f6;
+  --chart-series-2: #22c55e;
+  --chart-series-3: #f59e0b;
+  --chart-series-4: #8b5cf6;
+  --chart-series-5: #ec4899;
+  --chart-series-6: #06b6d4;
+  /* A seventh category folds into this rather than being given an invented
+     hue — "Other" is the honest label for a colour we did not choose. */
+  --chart-other: #94a3b8;
+  --chart-track: #e2e8f0;
+  --chart-grid: rgba(148, 163, 184, 0.22);
+
+  /* --- spacing ---
+     A 4px rhythm, which is what the stylesheet's existing paddings already
+     approximate by hand. Every new rule uses these; the literals migrate as
+     their rule is next touched. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* --- shape --- */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  /* The app's de-facto default, used a dozen times before it had a name. */
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  /* The system is borders-first: shadows are a whisper, not a lift. */
+  --shadow-card: 0 8px 20px rgba(15, 23, 42, 0.02);
+  --shadow-raised: 0 18px 30px rgba(15, 23, 42, 0.08);
+  --shadow-modal: 0 24px 54px rgba(15, 23, 42, 0.18);
+
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.45);
+
+  /* --- stacking order ---
+     A documented ladder, because the seven raw values this replaces were
+     assigned per-feature and collided: the modal backdrop sat at 50 while the
+     mobile sidebar drawer sat at 60 and its toggle at 70, so opening a modal
+     on a phone drew the navigation on top of it.
+
+     The rule is that a modal outranks every drawer layer, and a toast
+     outranks everything — an error you cannot see is an error you cannot act
+     on. Leave gaps of 10 so a new layer never needs the whole ladder renumbered. */
+  --z-raised: 1;           /* in-flow lift: sticky table cells, grid overlays */
+  --z-sticky: 10;          /* sticky page headers */
+  --z-drawer-overlay: 90;
+  --z-drawer: 100;         /* the mobile sidebar itself */
+  --z-drawer-toggle: 110;  /* must clear the drawer it opens */
+  --z-modal-backdrop: 200;
+  --z-modal: 210;
+  --z-toast: 300;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #edf3f8;
+  color: #0f172a;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.auth-card,
+.dashboard-card {
+  width: min(100%, 700px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+  padding: 28px 26px 24px;
+}
+
+.auth-card {
+  max-width: 440px;
+  padding: 30px 32px;
+}
+
+/* The faculty and student dashboards use this to tighten the hero card, and it
+   had no rule — so both rendered with the full login-page padding. */
+.dashboard-card.compact {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.auth-card h1,
+.dashboard-card h1 {
+  margin: 0;
+  font-size: 2.15rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.subtitle {
+  color: #475569;
+  margin: 6px 0 22px;
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 9px;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #d6dde7;
+  background: white;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Border only. The ring is owned by the single :focus-visible rule further
+   down, which every other control already uses.
+
+   This rule used to set its own faint grey box-shadow, and because a bare
+   `input:focus` outranks a `:where(...)` selector (`:where` contributes zero
+   specificity) it beat that rule — so the app's most-used control showed its
+   weakest focus treatment, and showed it on mouse click too. */
+input:focus {
+  border-color: var(--accent-blue);
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 13px 16px;
+  background: linear-gradient(180deg, #2f6ce3, #2057ca);
+  color: white;
+  margin-top: 8px;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.18);
+}
+
+.secondary-btn {
+  padding: 10px 18px;
+  background: #e5e7eb;
+  color: #0f172a;
+  min-width: 110px;
+  font-size: 0.96rem;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.98);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-box,
+.info-box {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.96rem;
+}
+
+.error-box {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.info-box {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0c4a6e;
+}
+
+.admin-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #eef3f8;
+}
+
+/* The sidebar and the content area each scroll on their own, so a long
+   nav never pushes the table out of reach and vice versa. */
+.sidebar {
+  width: 260px;
+  flex: 0 0 260px;
+  background: linear-gradient(180deg, #111f3d 0%, #0d1730 100%);
+  color: #eaf0ff;
+  padding: 18px 16px 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.brand-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5dd0ff, #3d84ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-main {
+  font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.brand-sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.nav-item {
+  width: 100%;
+  background: transparent;
+  color: #dfe7ff;
+  border-radius: 10px;
+  padding: 11px 14px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.96rem;
+  opacity: 0.9;
+}
+
+.nav-item.active {
+  background: rgba(70, 107, 219, 0.28);
+  color: white;
+  font-weight: 600;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-icon {
+  width: 18px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.content-panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 22px 28px;
+  scroll-behavior: smooth;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px 18px;
+  gap: 16px;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-text {
+  font-size: 1.05rem;
+  color: #1f2937;
+}
+
+.profile-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 7px 12px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e293b, #475569);
+  color: white;
+  font-weight: 700;
+}
+
+.profile-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.profile-role {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 18px 18px 14px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.stat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.stat-icon.blue { background: #dfeefd; }
+.stat-icon.purple { background: #efe7ff; }
+.stat-icon.green { background: #daf6ee; }
+.stat-icon.orange { background: #fff0d6; }
+.stat-icon.pink { background: #ffe5f0; }
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: #0f172a;
+}
+
+.stat-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.middle-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.3fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 18px;
+}
+
+/* .panel-card is the name the assessments/marks/results screens use. It was
+   never styled, so those panels rendered as bare blocks — which is why they
+   were the visually weakest screens in the app. Aliased rather than
+   redefined: they are the same thing, and two definitions would drift. */
+.panel,
+.panel-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.02);
+}
+
+/* .panel-head likewise. Note .panel-head-meta already existed and styled the
+   right-hand side of a header whose container had no rule at all. */
+.panel-header,
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.panel-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.mini-btn {
+  background: #f3f4f6;
+  color: #475569;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.donut-wrap {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #334155;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-list strong {
+  margin-left: auto;
+  font-size: 0.76rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.attendance-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+/* The dashboard's Quick Actions.
+   These were named .action-* until the JSX was renamed to .quick-* and the
+   stylesheet was not, which left the admin landing page rendering a stack of
+   bare buttons against dead CSS. The names now match
+   pages/AdminDashboard.jsx:486-500, and scripts/check-classnames.mjs exists so
+   the next rename cannot drift silently. */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.quick-card {
+  background: #f6fbff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  padding: 18px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #1f2937;
+  font-weight: 600;
+  min-height: 90px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.quick-card:hover {
+  border-color: var(--accent-blue);
+}
+
+.quick-card.color-1 { background: #edf8ff; }
+.quick-card.color-2 { background: #eef7f2; }
+.quick-card.color-3 { background: #fff5ee; }
+.quick-card.color-4 { background: #f4f1ff; }
+.quick-card.color-5 { background: #fef4f4; }
+.quick-card.color-6 { background: #f3f9f3; }
+
+.quick-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
+  }
+
+  .middle-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Below this width the two panes stack, so hand scrolling back
+     to the document instead of nesting two scroll areas. */
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  /* Replaced by the drawer below. Stacking put a 320px scrolling block of
+     25 nav items on top of every page, pushing the content below the fold. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: var(--z-drawer);
+    width: min(85vw, 280px);
+    flex: none;
+    max-height: none;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .content-panel {
+    overflow-y: visible;
+  }
+
+  .page-topbar {
+    position: static;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 680px) {
+  .content-panel {
+    padding: 16px 14px 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar-right {
+    width: 100%;
+  }
+}
+
+.department-page {
+  background: #f4f8fb;
+}
+
+.department-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 12px 0 18px;
+}
+
+/* .search-input is the generic name; .department-search is the legacy one that
+   leaked out of the first CRUD screen into 42 files. New markup uses
+   .search-input, and the old name retires with the page-by-page migration. */
+.department-search,
+.search-input {
+  width: min(100%, 340px);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 11px 14px;
+  font-size: 0.96rem;
+}
+
+.department-primary-btn {
+  width: auto;
+  min-width: 180px;
+  margin-top: 0;
+}
+
+.department-table-wrap {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.03);
+}
+
+.department-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.department-table th,
+.department-table td {
+  padding: 16px 18px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.department-table thead {
+  background: #f8fafc;
+}
+
+.department-table th {
+  color: #475569;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.department-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.dept-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dept-desc {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.inactive {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-btn {
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.table-loading,
+.table-empty {
+  padding: 24px 18px;
+  color: #64748b;
+  text-align: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: var(--z-modal-backdrop);
+}
+
+.modal-card {
+  width: min(100%, 520px);
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18);
+  padding: 24px;
+}
+
+.modal-card h3 {
+  margin: 0 0 18px;
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.department-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.department-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.department-form input,
+.department-form textarea {
+  border: 1px solid #d7dfeb;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 13px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.modal-actions .primary-btn,
+.modal-actions .secondary-btn {
+  width: auto;
+  min-width: 140px;
+}
+
+/* ==========================================================================
+   Grouped sidebar navigation
+   ========================================================================== */
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nav-group:last-child {
+  border-bottom: none;
+}
+
+.nav-group-title {
+  padding: 8px 14px 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(226, 235, 255, 0.42);
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item.upcoming {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.nav-item.upcoming:hover {
+  background: transparent;
+}
+
+.nav-soon {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.logout {
+  color: #ffc9c9;
+}
+
+.nav-item.logout:hover {
+  background: rgba(248, 113, 113, 0.14);
+}
+
+/* ==========================================================================
+   Page header, stat strip, filter bar
+   ========================================================================== */
+
+.page-topbar {
+  position: sticky;
+  top: -20px;
+  z-index: var(--z-sticky);
+  margin: -20px -22px 0;
+  padding: 18px 22px 14px;
+  background: rgba(244, 248, 251, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  align-items: flex-start;
+}
+
+.page-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.84rem;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0 14px;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.mini-stat-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.mini-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mini-stat-value.tone-green { color: #16a34a; }
+.mini-stat-value.tone-gray { color: #64748b; }
+.mini-stat-value.tone-blue { color: #2563eb; }
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 2.2fr) repeat(4, minmax(140px, 1fr)) auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* The flexible sibling of .filter-bar, and the one new markup should use.
+   .filter-bar hardcodes six columns, which is why four more near-identical
+   copies of it exist further down this file for features with a different
+   number of filters. This one takes however many controls it is given.
+
+   It was used by two screens with no rule behind it at all, so their filters
+   rendered as an unaligned stack. */
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.filters-row > select,
+.filters-row > input {
+  flex: 0 1 180px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  padding: 10px 12px;
+  font: inherit;
+  color: inherit;
+}
+
+.filters-row > .search-input {
+  flex: 1 1 240px;
+}
+
+.filter-bar .department-search {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-reset {
+  width: auto;
+  min-width: 108px;
+  margin-top: 0;
+}
+
+.filter-reset:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .filter-bar {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+
+  .filter-bar .filter-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.scroll-table {
+  overflow-x: auto;
+}
+
+.faculty-table {
+  min-width: 1020px;
+}
+
+.department-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  background: #f8fafc;
+}
+
+.department-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.department-table th.sortable:hover {
+  color: #1d4ed8;
+}
+
+.department-table tr.row-inactive td {
+  opacity: 0.62;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+}
+
+.link-btn {
+  padding: 0;
+  color: #1d4ed8;
+  text-align: left;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.view-btn {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.warn-btn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.success-btn {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.neutral-btn {
+  background: #eef2f7;
+  color: #334155;
+}
+
+.table-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.page-size select {
+  border: 1px solid #d7dfeb;
+  background: white;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.page-indicator {
+  font-weight: 600;
+  color: #475569;
+}
+
+/* ==========================================================================
+   Messages
+   ========================================================================== */
+
+.success-box {
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid rgba(22, 101, 52, 0.18);
+}
+
+.dismissable {
+  cursor: pointer;
+}
+
+.dismissable::after {
+  content: ' (click to dismiss)';
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+
+/* ==========================================================================
+   Modals: forms, profile, credentials
+   ========================================================================== */
+
+.modal-card {
+  max-height: min(88vh, 820px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-card.wide {
+  width: min(100%, 780px);
+}
+
+.modal-hint {
+  margin: -10px 0 18px;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+/* The assessments form introduced these three names and none were styled, so
+   its fields stacked with no rhythm and its header had no layout at all.
+   They are generic on purpose — the assignments form will use them too rather
+   than inventing a fourth set. */
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  margin-bottom: var(--space-4, 16px);
+}
+
+.modal-head h3 {
+  margin: 0;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+
+.modal-form select,
+.modal-form textarea,
+.modal-form input[type='date'] {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-muted);
+  border-radius: var(--radius, 10px);
+  padding: 12px 13px;
+  font: inherit;
+  color: inherit;
+}
+
+/* Fields that belong side by side, and wrap rather than squash. Each child is
+   a <label> containing its own control, which is why the children flex. */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3, 12px);
+}
+
+.form-row > * {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.department-form select,
+.department-form input[type='date'] {
+  border: 1px solid #d7dfeb;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 13px;
+  font: inherit;
+  color: inherit;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 620px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-row {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px !important;
+  font-weight: 500;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+  margin-bottom: 18px;
+}
+
+.profile-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.profile-grid span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.profile-grid strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pending-panel {
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.pending-panel strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #475569;
+}
+
+.pending-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.credentials-box {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  margin-bottom: 18px;
+}
+
+.credentials-box > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.credentials-box span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.credentials-box strong {
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.faculty-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .faculty-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.empty-note {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Student management
+   ========================================================================== */
+
+.mini-stat-value.tone-red { color: #dc2626; }
+
+.status-badge.graduated {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-badge.suspended {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Seven controls: search spans the row, the chain sits underneath. */
+.student-filter-bar {
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) auto;
+}
+
+.student-filter-bar .filter-search {
+  grid-column: 1 / -1;
+}
+
+.department-search:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(241, 245, 249, 0.9);
+}
+
+@media (max-width: 1100px) {
+  .student-filter-bar {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .student-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section headings inside the multi-part Add Student form. */
+.form-section {
+  margin: 6px 0 -4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.form-section:first-child {
+  margin-top: 0;
+}
+
+.input-with-action {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.input-with-action input {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-with-action .table-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.department-form select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.row-status-select {
+  border: 1px solid #d7dfeb;
+  background: white;
+  border-radius: 8px;
+  padding: 7px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.row-status-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.profile-hero strong {
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.profile-hero .mono {
+  color: #64748b;
+}
+
+.profile-section-title {
+  margin: 16px 0 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.profile-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   Subject management
+   ========================================================================== */
+
+.subject-filter-bar {
+  grid-template-columns: repeat(5, minmax(150px, 1fr)) auto;
+}
+
+.subject-filter-bar .filter-search {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1100px) {
+  .subject-filter-bar {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .subject-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.type-chip.type-theory { background: #dbeafe; color: #1d4ed8; }
+.type-chip.type-lab { background: #dcfce7; color: #166534; }
+.type-chip.type-project { background: #ede9fe; color: #6d28d9; }
+.type-chip.type-seminar { background: #fef3c7; color: #92400e; }
+.type-chip.type-elective { background: #ffe4e6; color: #be123c; }
+
+/* Sits in the third column of the Weekly Hours row. */
+.hours-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 0 0 12px;
+}
+
+.hours-summary span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.hours-summary strong {
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   Teaching assignments
+   ========================================================================== */
+
+.assignment-filter-bar {
+  grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+}
+
+.assignment-filter-bar .filter-search {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1100px) {
+  .assignment-filter-bar {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .assignment-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.type-chip.type-cross-dept {
+  margin-top: 6px;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* A linked subject, section, or faculty has been deactivated — deactivation
+   deliberately does not cascade, so the row needs to say so. */
+.stale-warning {
+  margin-top: 4px;
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* A hint sitting inside the form grid rather than above it. */
+.inline-hint {
+  margin: -6px 0 0;
+}
+
+.cross-dept-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fffbeb;
+  border: 1px solid rgba(180, 83, 9, 0.25);
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+.section-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.section-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.section-option input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: 0 0 auto;
+}
+
+.section-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.section-option.is-taken {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* The faculty dashboard's assignment table sits inside a panel. */
+.panel .department-table-wrap {
+  box-shadow: none;
+}
+
+.panel-count {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Timetable — the weekly grid, its coverage panel, and the read-only
+   "My Timetable" both dashboards share.
+   ========================================================================== */
+
+.timetable-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+  align-items: start;
+}
+
+.timetable-scope-bar {
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) auto auto;
+  align-items: center;
+}
+
+/* Eight periods plus a day column never fit a laptop; .scroll-table
+   supplies the horizontal scroll, exactly as it does for .faculty-table. */
+.timetable-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.timetable-table th,
+.timetable-table td {
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+.tt-day-short {
+  display: none;
+}
+
+.tt-cell {
+  height: 92px;
+  position: relative;
+  border-left: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.tt-cell.is-empty {
+  padding: 0;
+}
+
+/* The + only appears on hover so an empty week reads as empty, not as a
+   wall of buttons — but focus-visible keeps it reachable by keyboard. */
+.tt-add {
+  width: 100%;
+  height: 100%;
+  min-height: 72px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  color: #94a3b8;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.tt-cell.is-empty:hover .tt-add,
+.tt-add:focus-visible {
+  opacity: 1;
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.tt-cell.is-filled {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.tt-cell.is-inactive {
+  background: #f8fafc;
+  opacity: 0.6;
+}
+
+.tt-entry-subject {
+  padding: 0;
+  text-align: left;
+}
+
+.tt-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tt-cell:hover .tt-entry-actions,
+.tt-cell:focus-within .tt-entry-actions {
+  opacity: 1;
+}
+
+.tt-entry-actions .table-btn {
+  font-size: 0.7rem;
+  padding: 4px 7px;
+}
+
+/* A class sitting somewhere other than its section's home room. */
+.tt-room-chip {
+  display: inline-flex;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.tt-placing-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  color: #1d4ed8;
+  font-size: 0.85rem;
+}
+
+.coverage-panel {
+  position: sticky;
+  top: 18px;
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+}
+
+.coverage-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.coverage-bar-fill {
+  height: 100%;
+  background: #22c55e;
+  transition: width 0.2s ease;
+}
+
+.coverage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.coverage-row:hover {
+  background: rgba(59, 130, 246, 0.03);
+}
+
+.coverage-row.is-placing {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.coverage-counts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.coverage-status {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.coverage-status.COMPLETE { background: #dcfce7; color: #166534; }
+.coverage-status.UNDER_SCHEDULED { background: #fef3c7; color: #92400e; }
+.coverage-status.UNSCHEDULED { background: #f1f5f9; color: #475569; }
+.coverage-status.OVER_SCHEDULED { background: #fee2e2; color: #b91c1c; }
+
+.tt-skipped-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+.tt-skipped-list li {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 1200px) {
+  .timetable-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .coverage-panel {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .timetable-scope-bar {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .tt-day-full {
+    display: none;
+  }
+
+  .tt-day-short {
+    display: inline;
+  }
+}
+
+@media (max-width: 620px) {
+  .timetable-scope-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The coverage row reuses .dept-name/.dept-desc, which are only block-level
+   inside table cells — stack them explicitly here. */
+.coverage-subject {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.coverage-subject .dept-name,
+.coverage-subject .dept-desc {
+  display: block;
+}
+
+/* --- Read-only week, drawn the other way round -----------------------------
+   MyTimetable puts the days down the rows and the periods across the columns,
+   so the axis that can reach eight entries is the one the .scroll-table
+   handles. Everything here is scoped to .tt-by-day so the admin editor grid
+   (TimetableGrid) keeps its period-per-row layout. */
+.timetable-table.tt-by-day {
+  min-width: 820px;
+  font-size: 0.78rem;
+}
+
+.timetable-table.tt-by-day th,
+.timetable-table.tt-by-day td {
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.tt-by-day .tt-day-head-cell {
+  width: 104px;
+  text-align: left;
+}
+
+.tt-by-day .tt-slot-head {
+  width: auto;
+  min-width: 96px;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.tt-by-day .tt-slot-name {
+  display: block;
+  font-weight: 600;
+}
+
+.tt-by-day .tt-slot-time {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* The break sits in a thin column rather than a full-width band. */
+.tt-by-day .tt-slot-head.is-break,
+.tt-by-day .tt-cell.is-break {
+  min-width: 44px;
+  width: 44px;
+  background: #fffbeb;
+}
+
+.tt-by-day .tt-slot-head.is-break .tt-slot-name {
+  color: #92400e;
+}
+
+/* Keeps the day visible while the periods scroll sideways. */
+.tt-by-day .tt-day-cell {
+  background: #f8fafc;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.75rem;
+  position: sticky;
+  left: 0;
+  z-index: var(--z-raised);
+  vertical-align: middle;
+  height: 52px;
+}
+
+.tt-by-day .tt-cell {
+  height: auto;
+  min-height: 0;
+}
+
+.tt-by-day .tt-cell .dept-name {
+  font-size: 0.75rem;
+}
+
+.tt-by-day .tt-cell .dept-desc {
+  font-size: 0.66rem;
+  line-height: 1.3;
+}
+
+/* The admin editor uses the same shape, but each cell carries a subject
+   button, a faculty line, chips and the hover actions — so its columns are
+   wider and its rows taller than the read-only week's. */
+.timetable-table.tt-by-day.is-editable {
+  min-width: 1080px;
+  font-size: 0.8rem;
+}
+
+.tt-by-day.is-editable .tt-slot-head {
+  min-width: 132px;
+}
+
+.tt-by-day.is-editable .tt-cell {
+  height: 104px;
+}
+
+.tt-by-day.is-editable .tt-cell .dept-desc {
+  font-size: 0.7rem;
+}
+
+.tt-by-day.is-editable .tt-day-cell {
+  height: auto;
+}
+
+/* ==========================================================================
+   Attendance — the marking sheet's status control and its date inputs.
+   The reports reuse the timetable's coverage bar and status chips.
+   ========================================================================== */
+
+.attendance-layout {
+  /* The register is the work; the class list is the index beside it. */
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.attendance-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* The four statuses are mutually exclusive, so the unchosen ones stay quiet
+   and only the selected one carries its full colour. */
+.attendance-status-group .table-btn {
+  font-size: 0.72rem;
+  padding: 5px 9px;
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.attendance-status-group .table-btn:hover:not(:disabled) {
+  opacity: 0.8;
+  filter: none;
+}
+
+.attendance-status-group .table-btn.is-selected {
+  opacity: 1;
+  filter: none;
+  box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.25);
+}
+
+.attendance-status-group .table-btn:disabled {
+  cursor: not-allowed;
+}
+
+.attendance-bulk {
+  margin-bottom: 10px;
+}
+
+.attendance-date {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 12px;
+}
+
+.attendance-date input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  font: inherit;
+  color: #0f172a;
+}
+
+.attendance-reason {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.attendance-reason textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  font: inherit;
+  resize: vertical;
+}
+
+.attendance-filter-bar {
+  grid-template-columns: repeat(5, minmax(140px, 1fr)) repeat(2, minmax(130px, 0.8fr)) auto;
+  align-items: end;
+}
+
+.attendance-filter-bar .attendance-date {
+  margin-bottom: 0;
+}
+
+.attendance-percent-cell .coverage-bar {
+  margin-bottom: 6px;
+  max-width: 180px;
+}
+
+@media (max-width: 1200px) {
+  .attendance-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .attendance-filter-bar {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .attendance-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Dashboard + charts. Token-only, per the rule at the top of this file.
+   ========================================================================== */
+
+/* Screen readers get the same numbers the drawing shows. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A keyboard user could not previously see where they were: buttons and
+   links had no focus style at all. :focus-visible so a mouse click does not
+   leave a ring behind. */
+:where(button, a, [role="button"], select, textarea, input, summary):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.dash-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.setup-health {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--accent-amber);
+}
+
+.setup-health strong {
+  color: var(--accent-amber-ink);
+}
+
+/* The stat card is a real button now, so it needs the affordance it never
+   had while it was a div with an onClick. */
+.stat-card {
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
+}
+
+.stat-card.is-skeleton,
+.panel.is-skeleton {
+  min-height: 140px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 25%,
+    var(--surface-sunken) 37%,
+    var(--surface-muted) 63%
+  );
+  background-size: 400% 100%;
+  animation: dash-shimmer 1.4s ease infinite;
+}
+
+.panel.is-skeleton {
+  min-height: 280px;
+}
+
+@keyframes dash-shimmer {
+  from { background-position: 100% 50%; }
+  to { background-position: 0 50%; }
+}
+
+/* --- charts --- */
+
+.chart-figure {
+  margin: 0;
+}
+
+/* An <svg> carrying only a viewBox has no intrinsic size inside a flex or
+   grid item and collapses to nothing. This is the rule that stops that. */
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-donut .chart,
+.chart-gauge .chart {
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+/* SeriesChart passes this and nothing was listening, so a line chart stretched
+   to whatever width its grid cell allowed while the donut and gauge beside it
+   stayed capped. It is wide by nature — a time axis needs room — so it takes
+   the full column with only a ceiling. */
+.chart-series .chart {
+  max-width: 100%;
+}
+
+.chart-center-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  fill: var(--text-strong);
+}
+
+.chart-gauge-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  fill: var(--text-strong);
+}
+
+.chart-center-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-muted);
+}
+
+.chart-axis-label {
+  font-size: 0.68rem;
+  fill: var(--text-muted);
+}
+
+.chart-axis-label.is-empty {
+  fill: var(--text-faint);
+}
+
+.chart-caption,
+.chart-note {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.chart-note {
+  text-align: left;
+  color: var(--accent-amber-ink);
+}
+
+.chart-legend-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chart-legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.chart-legend-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-legend-share {
+  min-width: 40px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.chart-empty {
+  padding: 28px 16px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.chart-empty-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.chart-empty-hint {
+  margin: 6px 0 12px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+/* --- ranked meters --- */
+
+.bar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* BarList marks every row with this and nothing was listening. The gap above
+   held the rows apart, so the omission was invisible until a row needed to
+   group its own label, bar and hint. */
+.bar-list-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bar-list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.bar-list-label {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-strong);
+}
+
+.bar-list-value {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.bar-list-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+@media (max-width: 1100px) {
+  .dash-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- the navigation drawer ---------------------------------------------- */
+
+/* Hidden on desktop, where the sidebar is simply always there. */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: var(--z-drawer-toggle);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-raised);
+  color: var(--text-strong);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-drawer-overlay);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+@media (max-width: 900px) {
+  .sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Clear the fixed toggle so it never sits on the page title. */
+  .content-panel .topbar {
+    padding-left: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .coverage-bar-fill,
+  .stat-card {
+    transition: none;
+  }
+
+  .stat-card.is-skeleton,
+  .panel.is-skeleton {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Assessments, marks and results
+   ========================================================================== */
+
+/* The weightage ledger. A class has 100% to give out, and this is it. */
+.weightage-bar {
+  margin: 0.75rem 0 1rem;
+}
+
+.weightage-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+
+.weightage-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.weightage-remaining {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.weightage-remaining.is-over {
+  color: var(--accent-red);
+}
+
+.weightage-track {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2, rgba(148, 163, 184, 0.18));
+}
+
+.weightage-seg { height: 100%; }
+.weightage-seg.seg-1 { background: var(--chart-series-1); }
+.weightage-seg.seg-2 { background: var(--chart-series-2, #6366f1); }
+.weightage-seg.seg-3 { background: var(--chart-series-3, #14b8a6); }
+.weightage-seg.seg-4 { background: var(--chart-series-4, #a855f7); }
+.weightage-seg.seg-5 { background: var(--chart-series-5, #f59e0b); }
+
+/* What is being typed right now, so the budget reads live. */
+.weightage-seg.is-pending {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--accent-amber) 0 6px,
+    rgba(255, 255, 255, 0.35) 6px 12px
+  );
+}
+
+.weightage-seg.is-over { background: var(--accent-red); }
+
+.weightage-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.weightage-legend li { display: flex; align-items: center; gap: 0.35rem; }
+
+.weightage-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.weightage-dot.seg-1 { background: var(--chart-series-1); }
+.weightage-dot.seg-2 { background: var(--chart-series-2, #6366f1); }
+.weightage-dot.seg-3 { background: var(--chart-series-3, #14b8a6); }
+.weightage-dot.seg-4 { background: var(--chart-series-4, #a855f7); }
+.weightage-dot.seg-5 { background: var(--chart-series-5, #f59e0b); }
+
+/* The mark sheet. Built for a hundred keystrokes, not for a form. */
+.mark-input {
+  width: 5.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.35));
+  background: var(--input-bg, transparent);
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Deliberately louder than the shared ring: on a sheet of fifty identical
+   number cells, knowing which one has the caret matters more than visual
+   restraint. It keeps the shared ring and adds a border, rather than being a
+   third competing treatment. */
+.mark-input:focus {
+  border-color: var(--accent-blue);
+}
+
+.mark-input.is-invalid,
+.mark-sheet tr.is-invalid .mark-input {
+  border-color: var(--accent-red);
+}
+
+.mark-sheet tr.is-invalid { background: rgba(239, 68, 68, 0.06); }
+
+/* Hide the spinners — they get in the way of fast typing. */
+.mark-input::-webkit-outer-spin-button,
+.mark-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mark-input[type='number'] { -moz-appearance: textfield; }
+
+.entry-progress {
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.sheet-actions { align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+
+/* The marks-entry column. .panel-card above gives it its surface; this only
+   keeps a long roster from pushing the save controls off the bottom of the
+   viewport on a laptop. */
+.mark-sheet-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sheet-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 1rem 0 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid var(--border-color, rgba(148, 163, 184, 0.25));
+}
+
+.sheet-summary div { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.sheet-summary dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sheet-summary dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grades. Tone carries the meaning; the letter carries the fact. */
+.grade-chip {
+  display: inline-block;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.grade-chip.tone-good { background: rgba(34, 197, 94, 0.18); color: var(--accent-green, #16a34a); }
+.grade-chip.tone-warn { background: rgba(245, 158, 11, 0.18); color: var(--accent-amber); }
+.grade-chip.tone-danger { background: rgba(239, 68, 68, 0.18); color: var(--accent-red); }
+
+.fail-flag { font-style: normal; font-size: 0.72rem; color: var(--accent-red); }
+
+.sgpa-badge {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: rgba(34, 197, 94, 0.16);
+  color: var(--accent-green, #16a34a);
+}
+
+.breakdown-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.82rem;
+}
+
+/* Shared shells used by the new screens. */
+.panel-head-meta { display: flex; align-items: center; gap: 0.75rem; }
+
+.tab-row { display: flex; gap: 0.5rem; margin: 0.75rem 0; }
+
+.tab-row .table-btn.is-selected {
+  background: var(--chart-series-1);
+  color: #fff;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.notice-box.warn {
+  border-left: 3px solid var(--accent-amber);
+}
+
+tr.is-muted { opacity: 0.6; }
+
+.picker-card .class-picker-list { list-style: none; margin: 0; padding: 0; }
+
+.class-picker-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.class-picker-item:hover { border-color: var(--chart-series-1); }
+
+.class-picker-item.is-selected {
+  border-color: var(--chart-series-1);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.picker-main { font-weight: 600; }
+.picker-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+.panel-foot {
+  margin: 0.6rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

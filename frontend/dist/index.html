@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f6ce3'/%3E%3Ctext x='16' y='22' font-family='system-ui,sans-serif' font-size='18' font-weight='700' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E"
+    />
+
+    <!--
+      Inter has led the font stack in styles.css since the beginning, but was
+      never actually loaded — so every user fell back to system-ui and the
+      design had never been seen in the typeface it was built for. It also
+      meant the app rendered in a different face on every operating system.
+
+      display=swap keeps first paint immediate, and if fonts.googleapis.com is
+      unreachable (a college intranet with no outbound route, say) the stack
+      simply falls back to system-ui as before — a slower first paint, never a
+      broken page.
+
+      To drop the external request entirely: download Inter's latin woff2,
+      place it in public/fonts/, and replace this block with a local
+      @font-face. Nothing else has to change.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <title>Smart College System</title>
+    <script type="module" crossorigin src="/assets/index-wj-byDRh.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BqPEOB--.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
